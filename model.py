@@ -9,6 +9,9 @@ from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.layers import Input,Dense
 from tensorflow.keras.models import Model
 from sklearn.model_selection import StratifiedKFold
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
 from .utils import ClassificationReport
 
 
@@ -96,3 +99,41 @@ class DisasterDetector:
             y_pred += model.predict(X_test_encoded) / len(self.models)
 
         return y_pred
+
+
+class NaiveBayes:
+
+    def __init__(self):
+
+        self.test_size = 0.2
+        self.nb = MultinomialNB()
+        self.cv = CountVectorizer()
+
+    def transform(self, df):
+
+        if 'target' in df:
+            x = self.cv.fit_transform(df.cleaned).todense()
+            y = df.relabeled_target.values
+            return x, y
+
+        else:
+            x = self.cv.transform(df.cleaned).todense()
+            return x
+
+    def fit(self, x, y):
+
+        xtrain, xval, ytrain, yval = train_test_split(x,
+                                                      y,
+                                                      test_size=self.test_size,
+                                                      random_state=9999)
+
+        self.nb.fit(xtrain, ytrain)
+        yy = self.nb.predict(xval)
+        print('MultinomialNB Model Accuracy Score for Train Data set is {}'.format(self.nb.score(xtrain, ytrain)))
+        print('MultinomialNB Model Accuracy Score for Test Data set is {}'.format(self.nb.score(xval, yval)))
+        print('MultinomialNB Model F1 Score is {}'.format(f1_score(yval, yy)))
+
+    def predict(self, x):
+
+        return self.nb.predict(x)
+
