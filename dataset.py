@@ -493,7 +493,7 @@ class Cleaner:
         return train
 
     def process_text(self, df):
-        if 'text' in df:
+        if 'target' in df:
             df = self.duplicate_target(df)
         df['cleaned'] = df.text.apply(lambda x: self.clean(x))
         df['cleaned'] = df.cleaned.apply(lambda x: self.remove_emoji(x))
