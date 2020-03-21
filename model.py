@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow import keras
 from tensorflow.keras.optimizers import SGD, Adam
-from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Input,Dense
 from tensorflow.keras.models import Model
 from sklearn.model_selection import StratifiedKFold
 from .utils import ClassificationReport
@@ -59,7 +59,7 @@ class DisasterDetector:
         model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
         return model
 
-    def train(self, X):
+    def fit(self, X):
         skf = StratifiedKFold(n_splits=2, shuffle=True, random_state=999)
         for fold, (trn_idx, val_idx) in enumerate(skf.split(X['cleaned'], X['keyword'])):
             print('\nFold {}\n'.format(fold))
