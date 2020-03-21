@@ -1,3 +1,6 @@
+import pandas as pd
+import re
+
 dd = {
     "$" : " dollar ",
     "€" : " euro ",
@@ -230,15 +233,20 @@ dd = {
 }
 
 
-class cleaner(object):
+def read_dataset():
+    cleaner = Cleaner()
+    train = cleaner.process_text(df=pd.read_csv('train.csv'))
+    test = cleaner.process_text(df=pd.read_csv('test.csv'))
+    sub = pd.read_csv('submission.csv')
+    return train, test, sub
 
-    def __init__(self, df):
-        self.df = df
+
+class Cleaner:
+
     @staticmethod
     def abbra(text):
         text = re.sub(r'\w+', lambda a: dd.get(a.group(), a.group()), text)
         return text
-
 
     @staticmethod
     def remove_emoji(text):
@@ -484,12 +492,12 @@ class cleaner(object):
         train.reset_index(drop=True, inplace=True)
         return train
 
-    def process_text(self):
+    def process_text(self, df):
+        if 'text' in df:
+            df = self.duplicate_target(df)
+        df['cleaned'] = df.text.apply(lambda x: self.clean(x))
+        df['cleaned'] = df.cleaned.apply(lambda x: self.remove_emoji(x))
+        df['cleaned'] = df.cleaned.apply(lambda x: self.abbra(x))
+        df = self.fillna(df)
 
-        self.df = self.duplicate_target(self.df)
-        self.df['cleaned'] = self.df.text.apply(lambda x: self.clean(x))
-        self.df['cleaned'] = self.df.cleaned.apply(lambda x: self.remove_emoji(x))
-        self.df['cleaned'] = self.df.cleaned.apply(lambda x: self.abbra(x))
-        self.df = self.fillna(self.df)
-
-        return self.df
+        return df
