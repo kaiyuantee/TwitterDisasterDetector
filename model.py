@@ -33,7 +33,7 @@ class DisasterDetector:
         all_segments = []
         for text in texts:
             text = self.token.tokenize(text)
-            text = text[:self.max_sql - 2]  # why tho
+            text = text[:self.max_sql - 2]
             input_seq = ['[CLS]'] + text + ['[SEP]']
             pad_len = self.max_sql - len(input_seq)
             tokens = self.token.convert_tokens_to_ids(input_seq)
@@ -51,7 +51,7 @@ class DisasterDetector:
         input_mask = Input(shape=(self.max_sql,), dtype=tf.int32, name='input_mask')
         segmentids = Input(shape=(self.max_sql,), dtype=tf.int32, name='segment_ids')
         _, sequence_output = self.bert_layer([input_words, input_mask, segmentids])  # without pooled output
-        clf_output = sequence_output[:, 0, :]  # the fuck does this do
+        clf_output = sequence_output[:, 0, :]
         out = Dense(1, activation='sigmoid')(clf_output)
 
         model = Model(inputs=[input_words, input_mask, segmentids], outputs=out)
