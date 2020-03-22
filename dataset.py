@@ -261,17 +261,21 @@ class Cleaner:
         return emoji_pattern.sub(r'', text)
 
     @staticmethod
+    def remove_punctuations(text):
+        punctuations = '@#!?+&*[]-%.:/();$=><|{}^' + "'`"
+
+        for p in punctuations:
+            text = text.replace(p, '')
+
+        return text
+
+    @staticmethod
     def clean(tweet):
 
         # Urls
         tweet = re.sub(r"https?:\/\/t.co\/[A-Za-z0-9]+", "", tweet)
         tweet = re.sub(r'\n', ' ', tweet)
         tweet = re.sub('\s+', ' ', tweet).strip()  # leading tail
-
-        # Words with punctuations and special characters
-        punctuations = '@#!?+&*[]-%.:/();$=><|{}^' + "'`"
-        for p in punctuations:
-            tweet = tweet.replace(p, '')
 
             # Special characters
         tweet = re.sub(r"\x89Û_", "", tweet)
@@ -497,6 +501,7 @@ class Cleaner:
             df = self.duplicate_target(df)
         df['cleaned'] = df.text.apply(lambda x: self.clean(x))
         df['cleaned'] = df.cleaned.apply(lambda x: self.remove_emoji(x))
+        df['cleaned'] = df.cleaned.apply(lambda x: self.remove_punctuations(x))
         df['cleaned'] = df.cleaned.apply(lambda x: self.abbra(x))
         df = self.fillna(df)
 
