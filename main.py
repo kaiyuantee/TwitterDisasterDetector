@@ -20,7 +20,7 @@ def main():
     bert_layer = hub.KerasLayer('https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/1', trainable=True)
     clf = DisasterDetector(bert_layer,
                            max_sql=128,
-                           lr=0.000005,
+                           lr=6e-6,
                            epochs=3,
                            batch_size=16)
     clf.fit(train)
